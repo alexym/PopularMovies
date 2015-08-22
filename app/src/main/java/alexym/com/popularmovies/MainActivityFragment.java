@@ -1,8 +1,11 @@
 package alexym.com.popularmovies;
 
 import android.app.ActivityOptions;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -14,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,8 +116,13 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         if(!sortOrderGeneral.equals(sortOrder)) {
-            new FetchMovieTask(this).execute(sortOrder);
-            sortOrderGeneral = sortOrder;
+            if(isNetworkAvailable()) {
+                new FetchMovieTask(this).execute(sortOrder);
+                sortOrderGeneral = sortOrder;
+            }
+            else{
+                Toast.makeText(getActivity(),"Es necesario conectarse a internet",Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -128,5 +137,16 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         adapter.updateList(items);
         progressBar.setVisibility(View.GONE);
 
+    }
+    public boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager)
+                getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+        // if no network is available networkInfo will be null
+        // otherwise check if we are connected
+        if (networkInfo != null && networkInfo.isConnected()) {
+            return true;
+        }
+        return false;
     }
 }

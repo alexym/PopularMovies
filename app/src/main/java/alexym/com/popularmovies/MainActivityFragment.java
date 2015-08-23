@@ -22,9 +22,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import Utils.FetchMovieTask;
-import Utils.OnTaskCompleted;
-import Utils.RecyclerItemClickListener;
+import alexym.com.popularmovies.Utils.FetchMovieTask;
+import alexym.com.popularmovies.Utils.OnTaskCompleted;
+import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
 
 
 /**
@@ -128,9 +128,11 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
     @Override
     public void updateView(List result) {
-        items.clear();
-        items.addAll(result);
-        refreshDataScreen(result);
+        if(result !=null) {
+            items.clear();
+            items.addAll(result);
+            refreshDataScreen(result);
+        }
 
     }
     public void refreshDataScreen(List items){

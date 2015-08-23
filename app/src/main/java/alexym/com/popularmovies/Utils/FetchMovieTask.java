@@ -1,4 +1,4 @@
-package Utils;
+package alexym.com.popularmovies.Utils;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -48,6 +48,8 @@ public class FetchMovieTask extends AsyncTask<String, String, List<Movie> > {
         try {
             //http://api.themoviedb.org/3/discover/movie?sort_by=popularity.desc&api_key=eabd29e5dd012c8df5fb7a073ae22063&language=es
             //http://api.themoviedb.org/3/discover/movie?sort_by=vote_average.desc&api_key=eabd29e5dd012c8df5fb7a073ae22063&language=es
+            //http://api.themoviedb.org/3/movie/{movie_id}?api_key=your_key&append_to_response=trailers,reviews
+            //http://api.themoviedb.org/3/movie/{87101}?api_key=eabd29e5dd012c8df5fb7a073ae22063&append_to_response=trailers,reviews
             final String SCHEME_PARAM = "http";
             final String AUTHORITY_PARAM = "api.themoviedb.org";
             final String PATH1_PARAM = "3";
@@ -105,6 +107,7 @@ public class FetchMovieTask extends AsyncTask<String, String, List<Movie> > {
             Log.e(LOG_TAG_FETCH, "Error ", e);
             // If the code didn't successfully get the weather data, there's no point in attempting
             // to parse it.
+            e.printStackTrace();
             return null;
         } catch (JSONException e) {
             e.printStackTrace();

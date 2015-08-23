@@ -16,6 +16,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+
+import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers;
+import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers.Trailers;
+import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers.Youtube;
+import alexym.com.popularmovies.Service.MovieService;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 
 /**
@@ -23,7 +32,7 @@ import java.util.GregorianCalendar;
  */
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
-
+    private Movie myObject;
     public DetailActivityFragment() {
     }
 
@@ -31,13 +40,14 @@ public class DetailActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View V = inflater.inflate(R.layout.fragment_detail, container, false);
-        Movie myObject = (Movie)  this.getArguments().getParcelable("my object");
+        myObject = (Movie)  this.getArguments().getParcelable("my object");
         Log.i(LOG_TAG,myObject.getOriginalTitle());
         try {
             initUI(V,myObject);
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        updateInfoMovie();
         return V;
     }
     public void initUI(View v, Movie obj) throws ParseException {
@@ -57,6 +67,8 @@ public class DetailActivityFragment extends Fragment {
         overview_tv.setText(obj.getOverview());
         Log.i(LOG_TAG, obj.toString());
     }
+
+
     private String getReadableDateString(String time) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -66,5 +78,28 @@ public class DetailActivityFragment extends Fragment {
         myCal.setTime(theDate);
 
         return String.valueOf(myCal.get(Calendar.YEAR));
+    }
+
+    private void updateInfoMovie(){
+        MovieService movieService = new MovieService();
+        MovieService.MovieServiceInterface movieServiceInterface =movieService.getmMovieServiceInterface();
+        movieServiceInterface.getTrailerAndReviews(myObject.getId(), new Callback<ReviewsAndTrailers>() {
+
+
+            @Override
+            public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
+                Trailers trailers = reviewsAndTrailers.getTrailers();
+                List<Youtube> youtube = trailers.getYoutube();
+                for(Youtube youtube1 : youtube){
+                    Log.i(LOG_TAG,"es s "+youtube1.getName());
+                }
+
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+
+            }
+        });
     }
 }

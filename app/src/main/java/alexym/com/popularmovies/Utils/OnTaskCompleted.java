@@ -1,4 +1,4 @@
-package Utils;
+package alexym.com.popularmovies.Utils;
 
 import java.util.List;
 

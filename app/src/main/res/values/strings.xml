@@ -18,5 +18,7 @@
         <item>Most Popular</item>
         <item>Highest Rated</item>
     </string-array>
+    <string name="title_trailers">Trailers</string>
+    <string name="title_reviews">Reviews</string>
 
 </resources>

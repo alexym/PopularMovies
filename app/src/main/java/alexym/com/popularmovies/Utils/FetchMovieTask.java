@@ -17,8 +17,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import alexym.com.popularmovies.Movie;
-
 /**
  * Created by alexym on 16/07/15.
  */

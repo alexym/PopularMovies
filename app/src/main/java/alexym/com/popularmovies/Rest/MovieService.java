@@ -1,7 +1,6 @@
-package alexym.com.popularmovies.Service;
+package alexym.com.popularmovies.Rest;
 
 
-import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.http.GET;

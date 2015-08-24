@@ -14,6 +14,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
+import alexym.com.popularmovies.Utils.Movie;
+
 /**
  * Created by alexym on 12/07/15.
  */

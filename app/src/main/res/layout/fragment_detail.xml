@@ -1,75 +1,133 @@
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView_detail_sv"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    >
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context="alexym.com.popularmovies.DetailActivityFragment">
+    tools:context="alexym.com.popularmovies.DetailActivityFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/title_tv"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:background="@color/accent"
+            android:gravity="center"
             android:textColor="@android:color/white"
             android:textSize="26sp"
-            android:textStyle="bold"
-            android:gravity="center"/>
+            android:textStyle="bold" />
+
         <LinearLayout
             android:id="@+id/ly"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_alignParentStart="true"
             android:layout_below="@id/title_tv"
-            android:layout_alignParentStart="true">
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/poster_iv"
                 android:layout_width="match_parent"
                 android:layout_height="250dp"
-                android:layout_weight="1"
                 android:layout_margin="@dimen/activity_horizontal_margin"
-                android:transitionName="@string/image_card_animation"/>
+                android:layout_weight="1"
+                android:transitionName="@string/image_card_animation" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="@dimen/activity_horizontal_margin"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_margin="@dimen/activity_horizontal_margin">
+                android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/year_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="24sp"/>
-                <!--<TextView
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
                     android:id="@+id/time_tv"
-                    android:text="@string/hello_world"
-                    android:textStyle="italic"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="22sp"/>-->
+                    android:textSize="22sp"
+                    android:textStyle="italic" />
+
                 <TextView
                     android:id="@+id/rate_tv"
-                    android:textStyle="bold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
                     android:textSize="15sp"
-                    android:textColor="@android:color/black"/>
+                    android:textStyle="bold" />
 
             </LinearLayout>
         </LinearLayout>
+
+
         <TextView
             android:id="@+id/overview_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:layout_below="@id/ly"
             android:layout_margin="@dimen/activity_horizontal_margin"
-            android:layout_below="@id/ly"/>
+            android:textSize="18sp" />
+        <View
+            android:id="@+id/divider1"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/overview_tv"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/trailers_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider1"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/title_trailers"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/videos_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/trailers_tv"
+            android:orientation="vertical">
+        </LinearLayout>
+        <View
+            android:id="@+id/divider2"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/videos_ll"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:background="?android:attr/listDivider" />
+
+        <TextView
+            android:id="@+id/reviews_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/divider2"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:text="@string/title_reviews"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/reviews_ll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/reviews_tv"
+            android:layout_margin="@dimen/activity_horizontal_margin"
+            android:orientation="vertical">
+        </LinearLayout>
 
     </RelativeLayout>
 </ScrollView>

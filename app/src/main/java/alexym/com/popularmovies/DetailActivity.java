@@ -5,6 +5,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import alexym.com.popularmovies.Utils.Movie;
+
 
 public class DetailActivity extends ActionBarActivity {
     private final String LOG_TAG = DetailActivity.class.getSimpleName();

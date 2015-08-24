@@ -1,4 +1,4 @@
-package alexym.com.popularmovies.Model.POJOs;
+package alexym.com.popularmovies.Rest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,15 @@ public class ReviewsAndTrailers {
 
     private Trailers trailers;
     private Reviews reviews;
+    private int runtime;
+
+    public int getRuntime() {
+        return runtime;
+    }
+
+    public void setRuntime(int runtime) {
+        this.runtime = runtime;
+    }
 
     public Trailers getTrailers() {
         return trailers;

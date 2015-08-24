@@ -1,12 +1,14 @@
 package alexym.com.popularmovies;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -18,10 +20,13 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers;
-import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers.Trailers;
-import alexym.com.popularmovies.Model.POJOs.ReviewsAndTrailers.Youtube;
-import alexym.com.popularmovies.Service.MovieService;
+import alexym.com.popularmovies.Rest.ReviewsAndTrailers;
+import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Result;
+import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Reviews;
+import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Trailers;
+import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Youtube;
+import alexym.com.popularmovies.Rest.MovieService;
+import alexym.com.popularmovies.Utils.Movie;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -33,6 +38,10 @@ import retrofit.client.Response;
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     private Movie myObject;
+
+    LinearLayout linearLayoutTrailers, linearLayoutReviews;
+    TextView runtime;
+
     public DetailActivityFragment() {
     }
 
@@ -40,16 +49,16 @@ public class DetailActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View V = inflater.inflate(R.layout.fragment_detail, container, false);
-        myObject = (Movie)  this.getArguments().getParcelable("my object");
-        Log.i(LOG_TAG,myObject.getOriginalTitle());
+        myObject = (Movie) this.getArguments().getParcelable("my object");
         try {
-            initUI(V,myObject);
+            initUI(V, myObject);
         } catch (ParseException e) {
             e.printStackTrace();
         }
         updateInfoMovie();
         return V;
     }
+
     public void initUI(View v, Movie obj) throws ParseException {
         ImageView poster_iv = (ImageView) v.findViewById(R.id.poster_iv);
         Picasso.with(getActivity()).load(obj.getMoviePosterImageThumbnail()).into(poster_iv);
@@ -61,11 +70,14 @@ public class DetailActivityFragment extends Fragment {
         year_tv.setText(getReadableDateString(obj.getReleaseDate()));
 
         TextView rate_tv = (TextView) v.findViewById(R.id.rate_tv);
-        rate_tv.setText(obj.getUserRating()+"/10");
+        rate_tv.setText(obj.getUserRating() + "/10");
 
         TextView overview_tv = (TextView) v.findViewById(R.id.overview_tv);
         overview_tv.setText(obj.getOverview());
-        Log.i(LOG_TAG, obj.toString());
+
+        runtime = (TextView) v.findViewById(R.id.time_tv);
+        linearLayoutTrailers = (LinearLayout) v.findViewById(R.id.videos_ll);
+        linearLayoutReviews = (LinearLayout) v.findViewById(R.id.reviews_ll);
     }
 
 
@@ -80,19 +92,21 @@ public class DetailActivityFragment extends Fragment {
         return String.valueOf(myCal.get(Calendar.YEAR));
     }
 
-    private void updateInfoMovie(){
+    private void updateInfoMovie() {
         MovieService movieService = new MovieService();
-        MovieService.MovieServiceInterface movieServiceInterface =movieService.getmMovieServiceInterface();
+        MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
         movieServiceInterface.getTrailerAndReviews(myObject.getId(), new Callback<ReviewsAndTrailers>() {
-
 
             @Override
             public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
+                runtime.setText(String.valueOf(reviewsAndTrailers.getRuntime()) + "min.");
                 Trailers trailers = reviewsAndTrailers.getTrailers();
-                List<Youtube> youtube = trailers.getYoutube();
-                for(Youtube youtube1 : youtube){
-                    Log.i(LOG_TAG,"es s "+youtube1.getName());
-                }
+                List<Youtube> youtubeList = trailers.getYoutube();
+                createlinearlayoutTrailers(youtubeList);
+
+                Reviews reviews = reviewsAndTrailers.getReviews();
+                List<Result> results = reviews.getResults();
+                createlinearlayoutReviews(results);
 
             }
 
@@ -101,5 +115,36 @@ public class DetailActivityFragment extends Fragment {
 
             }
         });
+    }
+
+    public void createlinearlayoutTrailers(List<Youtube> youtubelistm) {
+        for (Youtube youtube : youtubelistm) {
+            View child = getActivity().getLayoutInflater().inflate(R.layout.trailer_row, null);
+            TextView tv = (TextView) child.findViewById(R.id.title_video_tv);
+            tv.setText(youtube.getName());
+            child.setOnClickListener(buttonClick);
+            TextView tvhidden = (TextView) child.findViewById(R.id.hidden_value);
+            tvhidden.setText(youtube.getSource());
+            linearLayoutTrailers.addView(child);
+        }
+    }
+
+    View.OnClickListener buttonClick = new View.OnClickListener() {
+        public void onClick(View v) {
+            TextView tvhidden = (TextView) v.findViewById(R.id.hidden_value);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + tvhidden.getText())));
+        }
+    };
+
+    public void createlinearlayoutReviews(List<Result> resultListm) {
+        for (Result result : resultListm) {
+            View child = getActivity().getLayoutInflater().inflate(R.layout.review_row, null);
+            TextView authorTv = (TextView) child.findViewById(R.id.author_tv);
+            authorTv.setText("By " + result.getAuthor());
+
+            TextView contentTv = (TextView) child.findViewById(R.id.content_tv);
+            contentTv.setText(result.getContent());
+            linearLayoutReviews.addView(child);
+        }
     }
 }

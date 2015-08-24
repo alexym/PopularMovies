@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import alexym.com.popularmovies.Utils.FetchMovieTask;
-import alexym.com.popularmovies.Utils.Movie;
+import alexym.com.popularmovies.Rest.Movie;
 import alexym.com.popularmovies.Utils.OnTaskCompleted;
 import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
 

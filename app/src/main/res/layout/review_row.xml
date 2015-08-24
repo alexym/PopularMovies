@@ -3,18 +3,20 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="@dimen/activity_horizontal_margin">
+    android:paddingBottom="@dimen/activity_horizontal_margin">
+    <TextView
+        android:id="@+id/content_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textStyle="italic"/>
     <TextView
         android:id="@+id/author_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textSize="17sp"
-        android:textColor="@android:color/black"/>
-    <TextView
-        android:id="@+id/content_tv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="15sp"/>
+        android:textColor="@android:color/black"
+        android:gravity="right"/>
 
 </LinearLayout>

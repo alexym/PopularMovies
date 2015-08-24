@@ -26,7 +26,7 @@ import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Reviews;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Trailers;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Youtube;
 import alexym.com.popularmovies.Rest.MovieService;
-import alexym.com.popularmovies.Utils.Movie;
+import alexym.com.popularmovies.Rest.Movie;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -143,7 +143,7 @@ public class DetailActivityFragment extends Fragment {
             authorTv.setText("By " + result.getAuthor());
 
             TextView contentTv = (TextView) child.findViewById(R.id.content_tv);
-            contentTv.setText(result.getContent());
+            contentTv.setText("\""+result.getContent()+"\"");
             linearLayoutReviews.addView(child);
         }
     }

@@ -5,7 +5,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import alexym.com.popularmovies.Utils.Movie;
+import alexym.com.popularmovies.Rest.Movie;
 
 
 public class DetailActivity extends ActionBarActivity {

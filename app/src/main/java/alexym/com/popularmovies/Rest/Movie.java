@@ -1,4 +1,4 @@
-package alexym.com.popularmovies.Utils;
+package alexym.com.popularmovies.Rest;
 
 
 import android.os.Parcel;

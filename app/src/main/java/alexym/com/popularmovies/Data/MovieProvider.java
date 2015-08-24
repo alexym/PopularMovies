@@ -1,37 +1,118 @@
 package alexym.com.popularmovies.Data;
 
-import android.content.Context;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.content.UriMatcher;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.net.Uri;
 
 /**
  * Created by alexym on 23/08/15.
  */
-public class MovieProvider extends SQLiteOpenHelper {
-    // If you change the database schema, you must increment the database version.
-    private static final int DATABASE_VERSION = 1;
+public class MovieProvider extends ContentProvider {
+    // The URI Matcher used by this content provider.
+    private static final UriMatcher sUriMatcher = buildUriMatcher();
+    private MovieDBHelper mOpenHelper;
+    private final String TAG = this.getClass().getName();
 
-    public static final String DATABASE_NAME = "movie.db";
+    public static final int MOVIE_ID = 100;
+    public static final int MOVIES = 200;
+    public static final int TRAILERS = 300;
+    public static final int REVIEWS = 400;
 
-    public MovieProvider(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    public static UriMatcher buildUriMatcher() {
+
+        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
+                MovieContract.PATH_MOVIE,
+                MOVIES);
+
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
+                MovieContract.PATH_MOVIE
+                        + "/*",
+                MOVIE_ID);
+
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
+                MovieContract.PATH_TRAILER
+                        + "/*",
+                TRAILERS);
+        uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
+                MovieContract.PATH_REVIEWS
+                        + "/*",
+                REVIEWS);
+
+        return uriMatcher;
+    }
+
+
+
+    @Override
+    public boolean onCreate() {
+        mOpenHelper = new MovieDBHelper(getContext());
+        return true;
     }
 
     @Override
-    public void onCreate(SQLiteDatabase sqLiteDatabase) {
-
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        return null;
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-        // Note that this only fires if you change the version number for your database.
-        // It does NOT depend on the version number for your application.
-        // If you want to update the schema without wiping data, commenting out the next 2 lines
-        // should be your top priority before modifying this method.
-       // sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherContract.LocationEntry.TABLE_NAME);
-        //sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + WeatherContract.WeatherEntry.TABLE_NAME);
-        onCreate(sqLiteDatabase);
+    public String getType(Uri uri) {
+        // Use the Uri Matcher to determine what kind of URI this is.
+        final int match = sUriMatcher.match(uri);
+
+        switch (match) {
+            case MOVIE_ID:
+                return MovieContract.MovieEntry.CONTENT_ITEM_TYPE;
+            case MOVIES:
+                return MovieContract.MovieEntry.CONTENT_TYPE;
+            case TRAILERS:
+                return MovieContract.TrailerEntry.CONTENT_TYPE;
+            case REVIEWS:
+                return MovieContract.ReviewsEntry.CONTENT_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues values) {
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch (match) {
+            case MOVIE_ID: {
+                long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
+                if ( _id > 0 )
+                    returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return returnUri;
+    }
+
+    @Override
+    public int delete(Uri uri, String selection, String[] selectionArgs) {
+        return 0;
+    }
+
+    @Override
+    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        return 0;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        return super.bulkInsert(uri, values);
     }
 }

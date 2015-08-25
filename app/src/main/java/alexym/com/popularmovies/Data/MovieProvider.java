@@ -35,17 +35,14 @@ public class MovieProvider extends ContentProvider {
                 MOVIE_ID);
 
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
-                MovieContract.PATH_TRAILER
-                        + "/*",
+                MovieContract.PATH_TRAILER,
                 TRAILERS);
         uriMatcher.addURI(MovieContract.CONTENT_AUTHORITY,
-                MovieContract.PATH_REVIEWS
-                        + "/*",
+                MovieContract.PATH_REVIEWS,
                 REVIEWS);
 
         return uriMatcher;
     }
-
 
 
     @Override
@@ -85,10 +82,26 @@ public class MovieProvider extends ContentProvider {
         Uri returnUri;
 
         switch (match) {
-            case MOVIE_ID: {
+            case MOVIES: {
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                if ( _id > 0 )
+                if (_id > 0)
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case TRAILERS: {
+                long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = MovieContract.TrailerEntry.buildTrailerUri(_id);
+                else
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                break;
+            }
+            case REVIEWS: {
+                long _id = db.insert(MovieContract.ReviewsEntry.TABLE_NAME, null, values);
+                if (_id > 0)
+                    returnUri = MovieContract.ReviewsEntry.buildReviewsUri(_id);
                 else
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 break;
@@ -103,7 +116,30 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsDeleted = 0;
+        if (selection == null) selection = "1";
+        switch (match) {
+            case MOVIES:
+                rowsDeleted = db.delete(MovieContract.MovieEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case TRAILERS:
+                rowsDeleted = db.delete(MovieContract.TrailerEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            case REVIEWS:
+                rowsDeleted = db.delete(MovieContract.ReviewsEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsDeleted;
     }
 
     @Override

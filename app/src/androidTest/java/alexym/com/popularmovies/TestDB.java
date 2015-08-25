@@ -126,7 +126,7 @@ public class TestDB extends AndroidTestCase {
         assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
 
     }
-    public ContentValues createMovieCV() {
+    public static ContentValues createMovieCV() {
         // Create a new map of values, where column names are the keys
         ContentValues testValues = new ContentValues();
         testValues.put(MovieContract.MovieEntry.COLUMN_ID_MOVIE, 10988);
@@ -135,6 +135,27 @@ public class TestDB extends AndroidTestCase {
         testValues.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, "sip overview");
         testValues.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, "realesedate");
         testValues.put(MovieContract.MovieEntry.COLUMN_USER_RATING, "sip user rating");
+
+        return testValues;
+    }
+    public static ContentValues createTrailerCV(long movie_id) {
+        // Create a new map of values, where column names are the keys
+        ContentValues testValues = new ContentValues();
+        testValues.put(MovieContract.TrailerEntry.COLUMN_ID_MOVIE, movie_id);
+        testValues.put(MovieContract.TrailerEntry.COLUMN_NAME, "hola sis");
+        testValues.put(MovieContract.TrailerEntry.COLUMN_SOURCE, "hola sis");
+
+
+
+        return testValues;
+    }
+    public static ContentValues createReviewsCV(long movie_id) {
+        // Create a new map of values, where column names are the keys
+        ContentValues testValues = new ContentValues();
+        testValues.put(MovieContract.ReviewsEntry.COLUMN_ID_MOVIE, movie_id);
+        testValues.put(MovieContract.ReviewsEntry.COLUMN_AUTHOR, "autor ");
+        testValues.put(MovieContract.ReviewsEntry.COLUMN_CONTENT, "content");
+
 
         return testValues;
     }

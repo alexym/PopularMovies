@@ -20,5 +20,7 @@
     </string-array>
     <string name="title_trailers">Trailers</string>
     <string name="title_reviews">Reviews</string>
+    <string name="favorite_enable">FAVORITE</string>
+    <string name="favorite_disable">MARK AS FAVORITE</string>
 
 </resources>

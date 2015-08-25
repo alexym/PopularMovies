@@ -53,7 +53,60 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        return null;
+        final int match = sUriMatcher.match(uri);
+        Cursor retCursor;
+
+        switch (match) {
+            case MOVIE_ID:{
+                String selectionId = MovieContract.MovieEntry._ID +" = ?";
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        selectionId,
+                        new String[]{uri.getLastPathSegment()},
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            case MOVIES:{
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            case TRAILERS:{
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.TrailerEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            case REVIEWS:{
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.ReviewsEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        retCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return retCursor;
     }
 
     @Override
@@ -144,7 +197,30 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        return 0;
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        int rowsUpdate = 0;
+
+        switch (match) {
+            case MOVIES:
+                rowsUpdate = db.update(MovieContract.MovieEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+
+            case TRAILERS: {
+                rowsUpdate = db.update(MovieContract.TrailerEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            case REVIEWS: {
+                rowsUpdate = db.update(MovieContract.TrailerEntry.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            }
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+        if(rowsUpdate != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+        return rowsUpdate;
     }
 
     @Override

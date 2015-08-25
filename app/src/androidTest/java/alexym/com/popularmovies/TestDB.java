@@ -121,10 +121,8 @@ public class TestDB extends AndroidTestCase {
         ContentValues testValues = createMovieCV();
         long locationRowId;
         locationRowId = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, testValues);
-
         // Verify we got a row back.
         assertTrue("Error: Failure to insert North Pole Location Values", locationRowId != -1);
-
     }
     public static ContentValues createMovieCV() {
         // Create a new map of values, where column names are the keys

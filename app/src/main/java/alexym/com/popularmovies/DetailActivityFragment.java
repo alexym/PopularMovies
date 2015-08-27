@@ -1,12 +1,18 @@
 package alexym.com.popularmovies;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,18 +21,21 @@ import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import alexym.com.popularmovies.Data.MovieContract;
+import alexym.com.popularmovies.Data.MovieProvider;
+import alexym.com.popularmovies.Rest.Movie;
+import alexym.com.popularmovies.Rest.MovieService;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Result;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Reviews;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Trailers;
 import alexym.com.popularmovies.Rest.ReviewsAndTrailers.Youtube;
-import alexym.com.popularmovies.Rest.MovieService;
-import alexym.com.popularmovies.Rest.Movie;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -38,6 +47,8 @@ import retrofit.client.Response;
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     private Movie myObject;
+    List<Youtube> youtubeList;
+    List<Result> results;
 
     LinearLayout linearLayoutTrailers, linearLayoutReviews;
     TextView runtime;
@@ -78,6 +89,14 @@ public class DetailActivityFragment extends Fragment {
         runtime = (TextView) v.findViewById(R.id.time_tv);
         linearLayoutTrailers = (LinearLayout) v.findViewById(R.id.videos_ll);
         linearLayoutReviews = (LinearLayout) v.findViewById(R.id.reviews_ll);
+
+        Button fav_btn = (Button) v.findViewById(R.id.favorite_btn);
+        fav_btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                saveMovieDB();
+            }
+        });
+
     }
 
 
@@ -93,28 +112,53 @@ public class DetailActivityFragment extends Fragment {
     }
 
     private void updateInfoMovie() {
-        MovieService movieService = new MovieService();
-        MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
-        movieServiceInterface.getTrailerAndReviews(myObject.getId(), new Callback<ReviewsAndTrailers>() {
-
-            @Override
-            public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
-                runtime.setText(String.valueOf(reviewsAndTrailers.getRuntime()) + "min.");
-                Trailers trailers = reviewsAndTrailers.getTrailers();
-                List<Youtube> youtubeList = trailers.getYoutube();
-                createlinearlayoutTrailers(youtubeList);
-
-                Reviews reviews = reviewsAndTrailers.getReviews();
-                List<Result> results = reviews.getResults();
-                createlinearlayoutReviews(results);
-
+        ContentResolver cr = getActivity().getContentResolver();
+        Uri uriBase = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, myObject.getId());
+        Cursor cursor = cr.query(uriBase, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            Log.i(LOG_TAG,"si hay registros guardados");
+            Cursor cursorTraielers = cr.query(
+                    MovieContract.TrailerEntry.CONTENT_URI,
+                    null,
+                    MovieProvider.selectionId,
+                    new String[]{String.valueOf(myObject.getId())},
+                    null);
+            if(cursorTraielers.moveToFirst()){
+                Log.i(LOG_TAG,"si si si entro al cursortrailers");
+            }else{
+                Log.i(LOG_TAG,"no hay nada");
+            }
+            while (cursorTraielers.moveToNext()) {
+                Log.i(LOG_TAG,"si si ");
+                Youtube youtubeOb = null;//j = new Youtube("hola","hola");
+                youtubeOb.setName(cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_NAME)));
+                Log.i(LOG_TAG,"essss is "+youtubeOb);
             }
 
-            @Override
-            public void failure(RetrofitError error) {
+        } else {
+            MovieService movieService = new MovieService();
+            MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
+                movieServiceInterface.getTrailerAndReviews(myObject.getId(), new Callback<ReviewsAndTrailers>() {
 
-            }
-        });
+                @Override
+                public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
+                    runtime.setText(String.valueOf(reviewsAndTrailers.getRuntime()) + "min.");
+                    Trailers trailers = reviewsAndTrailers.getTrailers();
+                    youtubeList = trailers.getYoutube();
+                    createlinearlayoutTrailers(youtubeList);
+
+                    Reviews reviews = reviewsAndTrailers.getReviews();
+                    results = reviews.getResults();
+                    createlinearlayoutReviews(results);
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+
+                }
+            });
+        }
     }
 
     public void createlinearlayoutTrailers(List<Youtube> youtubelistm) {
@@ -143,8 +187,67 @@ public class DetailActivityFragment extends Fragment {
             authorTv.setText("By " + result.getAuthor());
 
             TextView contentTv = (TextView) child.findViewById(R.id.content_tv);
-            contentTv.setText("\""+result.getContent()+"\"");
+            contentTv.setText("\"" + result.getContent() + "\"");
             linearLayoutReviews.addView(child);
+        }
+    }
+
+    public int saveMovieDB() {
+        ContentResolver cr = getActivity().getContentResolver();
+        ContentValues cv = new ContentValues();
+        cv.put(MovieContract.MovieEntry.COLUMN_ID_MOVIE, myObject.getId());
+        cv.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, myObject.getOriginalTitle());
+        cv.put(MovieContract.MovieEntry.COLUMN_MOVIE_POSTER_IMAGE_THUMBNAIL, myObject.getMoviePosterImageThumbnail());
+        cv.put(MovieContract.MovieEntry.COLUMN_USER_RATING, myObject.getUserRating());
+        cv.put(MovieContract.MovieEntry.COLUMN_RELEASE_DATE, myObject.getReleaseDate());
+        cv.put(MovieContract.MovieEntry.COLUMN_OVERVIEW, myObject.getOverview());
+
+        Uri resultInsUri = cr.insert(MovieContract.MovieEntry.CONTENT_URI, cv);
+        int resutInsId = Integer.parseInt(resultInsUri.getLastPathSegment());
+        Log.i(LOG_TAG, "se inserto " + resultInsUri.getLastPathSegment());
+        saveTrailersAndReviews(resutInsId);
+        return 0;
+    }
+
+    public boolean saveTrailersAndReviews(int resultInsId) {
+        Log.i(LOG_TAG, "el result es " + resultInsId);
+        ContentResolver cr = getActivity().getContentResolver();
+        saveTrailers(resultInsId, cr);
+        saveReviews(resultInsId, cr);
+        return false;
+    }
+
+    public void saveTrailers(int resultInsId, ContentResolver cv) {
+        if (youtubeList.size() > 0) {
+            ArrayList<ContentValues> cvArray = new ArrayList<ContentValues>();
+
+            for (Youtube youtube : youtubeList) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_ID_MOVIE, resultInsId);
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_NAME, youtube.getName());
+                contentValues.put(MovieContract.TrailerEntry.COLUMN_SOURCE, youtube.getSource());
+                cvArray.add(contentValues);
+            }
+
+            int bulk = cv.bulkInsert(MovieContract.TrailerEntry.CONTENT_URI, cvArray.toArray(new ContentValues[cvArray.size()]));
+            Log.i(LOG_TAG, "El valor de bulk trailers " + bulk);
+        }
+    }
+
+    public void saveReviews(int resultInsId, ContentResolver cv) {
+        if (results.size() > 0) {
+            ArrayList<ContentValues> cvArray = new ArrayList<ContentValues>();
+
+            for (Result result : results) {
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MovieContract.ReviewsEntry.COLUMN_ID_MOVIE, resultInsId);
+                contentValues.put(MovieContract.ReviewsEntry.COLUMN_AUTHOR, result.getAuthor());
+                contentValues.put(MovieContract.ReviewsEntry.COLUMN_CONTENT, result.getContent());
+                cvArray.add(contentValues);
+            }
+
+            int bulk = cv.bulkInsert(MovieContract.ReviewsEntry.CONTENT_URI, cvArray.toArray(new ContentValues[cvArray.size()]));
+            Log.i(LOG_TAG, "El valor de bulk reviews " + bulk);
         }
     }
 }

@@ -6,6 +6,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by alexym on 23/08/15.
@@ -20,6 +21,7 @@ public class MovieProvider extends ContentProvider {
     public static final int MOVIES = 200;
     public static final int TRAILERS = 300;
     public static final int REVIEWS = 400;
+    public static String selectionId = MovieContract.MovieEntry.COLUMN_ID_MOVIE +" = ?";
 
     public static UriMatcher buildUriMatcher() {
 
@@ -58,7 +60,7 @@ public class MovieProvider extends ContentProvider {
 
         switch (match) {
             case MOVIE_ID:{
-                String selectionId = MovieContract.MovieEntry._ID +" = ?";
+
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME,
                         projection,
@@ -225,6 +227,49 @@ public class MovieProvider extends ContentProvider {
 
     @Override
     public int bulkInsert(Uri uri, ContentValues[] values) {
-        return super.bulkInsert(uri, values);
+        final SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case TRAILERS: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+
+                        long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, value);
+                        if (_id != -1) {
+                            returnCount++;
+                            Log.i(TAG,"id de trailers "+_id);
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
+            case REVIEWS: {
+                db.beginTransaction();
+                int returnCount = 0;
+                try {
+                    for (ContentValues value : values) {
+                        long _id = db.insert(MovieContract.ReviewsEntry.TABLE_NAME, null, value);
+
+                        if (_id != -1) {
+                            returnCount++;
+                            Log.i(TAG,"id de reviews "+_id);
+                        }
+                    }
+                    db.setTransactionSuccessful();
+                } finally {
+                    db.endTransaction();
+                }
+                getContext().getContentResolver().notifyChange(uri, null);
+                return returnCount;
+            }
+            default:
+                return super.bulkInsert(uri, values);
+        }
     }
 }

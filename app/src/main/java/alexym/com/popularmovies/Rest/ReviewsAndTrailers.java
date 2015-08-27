@@ -23,31 +23,44 @@ public class ReviewsAndTrailers {
     public Trailers getTrailers() {
         return trailers;
     }
+
     public void setTrailers(Trailers trailers) {
         this.trailers = trailers;
     }
+
     public Reviews getReviews() {
         return reviews;
     }
+
     public void setReviews(Reviews reviews) {
         this.reviews = reviews;
     }
 
     public class Trailers {
         private List<Youtube> youtube = new ArrayList<Youtube>();
+
         public List<Youtube> getYoutube() {
             return youtube;
         }
+
         public void setYoutube(List<Youtube> youtube) {
             this.youtube = youtube;
         }
+
+        public Trailers() {
+
+        }
     }
+
     public class Youtube {
 
         private String name;
-        private String size;
         private String source;
-        private String type;
+
+        public Youtube(String name, String source) {
+            this.name = name;
+            this.source = source;
+        }
 
         public String getName() {
             return name;
@@ -57,13 +70,6 @@ public class ReviewsAndTrailers {
             this.name = name;
         }
 
-        public String getSize() {
-            return size;
-        }
-
-        public void setSize(String size) {
-            this.size = size;
-        }
 
         public String getSource() {
             return source;
@@ -73,14 +79,9 @@ public class ReviewsAndTrailers {
             this.source = source;
         }
 
-        public String getType() {
-            return type;
-        }
 
-        public void setType(String type) {
-            this.type = type;
-        }
     }
+
     public class Result {
 
         private String id;
@@ -88,37 +89,53 @@ public class ReviewsAndTrailers {
         private String content;
         private String url;
 
+        public Result() {
+
+        }
+
         public String getId() {
             return id;
         }
+
         public void setId(String id) {
             this.id = id;
         }
+
         public String getAuthor() {
             return author;
         }
+
         public void setAuthor(String author) {
             this.author = author;
         }
+
         public String getContent() {
             return content;
         }
+
         public void setContent(String content) {
             this.content = content;
         }
+
         public String getUrl() {
             return url;
         }
+
         public void setUrl(String url) {
             this.url = url;
         }
     }
+
     public class Reviews {
 
         private Integer page;
         private List<Result> results = new ArrayList<Result>();
         private Integer totalPages;
         private Integer totalResults;
+
+        public Reviews() {
+
+        }
 
         public Integer getPage() {
             return page;

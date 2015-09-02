@@ -10,8 +10,9 @@ public class Result {
     private String content;
     private String url;
 
-    public Result() {
-
+    public Result(String author, String content) {
+        this.author = author;
+        this.content = content;
     }
 
     public String getId() {

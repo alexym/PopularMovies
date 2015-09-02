@@ -47,11 +47,18 @@ import retrofit.client.Response;
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
     private Movie mMyObject;
-    List<Youtube> mYoutubeList;
-    List<Result> mResultList;
+    private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
+    private List<Result> mResultList = new ArrayList<Result>();
+
+    //id db
+    private String movieIdDB;
+    //id movie
+    private int movieId;
+    private boolean mfavoriteMovie = false;
 
     LinearLayout linearLayoutTrailers, linearLayoutReviews;
     TextView runtime;
+    Button fav_btn;
 
     public DetailActivityFragment() {
     }
@@ -61,6 +68,7 @@ public class DetailActivityFragment extends Fragment {
                              Bundle savedInstanceState) {
         View V = inflater.inflate(R.layout.fragment_detail, container, false);
         mMyObject = (Movie) this.getArguments().getParcelable("my object");
+        movieId = mMyObject.getId();
         try {
             initUI(V, mMyObject);
         } catch (ParseException e) {
@@ -90,10 +98,15 @@ public class DetailActivityFragment extends Fragment {
         linearLayoutTrailers = (LinearLayout) v.findViewById(R.id.videos_ll);
         linearLayoutReviews = (LinearLayout) v.findViewById(R.id.reviews_ll);
 
-        Button fav_btn = (Button) v.findViewById(R.id.favorite_btn);
+        fav_btn = (Button) v.findViewById(R.id.favorite_btn);
         fav_btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                saveMovieDB();
+                if (mfavoriteMovie) {
+                    deleteMovieDB();
+                } else {
+                    saveMovieDB();
+                }
+
             }
         });
 
@@ -102,63 +115,76 @@ public class DetailActivityFragment extends Fragment {
 
     private String getReadableDateString(String time) throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
         Date theDate = format.parse(time);
-
         Calendar myCal = new GregorianCalendar();
         myCal.setTime(theDate);
-
         return String.valueOf(myCal.get(Calendar.YEAR));
     }
 
     private void updateInfoMovie() {
         ContentResolver cr = getActivity().getContentResolver();
-        Uri uriBase = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, mMyObject.getId());
+        Uri uriBase = ContentUris.withAppendedId(MovieContract.MovieEntry.CONTENT_URI, movieId);
         Cursor cursor = cr.query(uriBase, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            Log.i(LOG_TAG,"si hay registros guardados");
+        mfavoriteMovie = cursor.moveToFirst();
+        if (mfavoriteMovie) {
+            changeStateButtonFav();
+            movieIdDB = cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry._ID));
+            //Acceso de los trailers
             Cursor cursorTraielers = cr.query(
                     MovieContract.TrailerEntry.CONTENT_URI,
                     null,
                     MovieProvider.selectionId,
-                    new String[]{String.valueOf(mMyObject.getId())},
+                    new String[]{movieIdDB},
                     null);
-            if(cursorTraielers.moveToFirst()){
-                Log.i(LOG_TAG,"si si si entro al cursortrailers");
-            }else{
-                Log.i(LOG_TAG,"no hay nada");
-            }
-            while (cursorTraielers.moveToNext()) {
-                Log.i(LOG_TAG,"si si ");
 
-                Youtube youtubeOb = new Youtube("hola","hola");
-                youtubeOb.setName(cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_NAME)));
-                Log.i(LOG_TAG,"essss is "+youtubeOb);
+            while (cursorTraielers.moveToNext()) {
+
+                String name_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_NAME));
+                String source_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_SOURCE));
+                Log.i(LOG_TAG,"cargando..."+name_trailer);
+                Youtube youtubeObj = new Youtube(name_trailer,source_trailer);
+                mYoutubeList.add(youtubeObj);
             }
+            createlinearlayoutTrailers(mYoutubeList);
+
+            //Acceso de los reviews
+            Cursor cursorReviews = cr.query(
+                    MovieContract.ReviewsEntry.CONTENT_URI,
+                    null,
+                    MovieProvider.selectionId,
+                    new String[]{movieIdDB},
+                    null);
+
+            while (cursorReviews.moveToNext()) {
+                String author_review = cursorReviews.getString(cursorReviews.getColumnIndex(MovieContract.ReviewsEntry.COLUMN_AUTHOR));
+                String content_review = cursorReviews.getString(cursorReviews.getColumnIndex(MovieContract.ReviewsEntry.COLUMN_CONTENT));
+                Result resultObj = new Result(author_review, content_review);
+                mResultList.add(resultObj);
+            }
+            createlinearlayoutReviews(mResultList);
 
         } else {
             MovieService movieService = new MovieService();
             MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
-                movieServiceInterface.getTrailerAndReviews(mMyObject.getId(), new Callback<ReviewsAndTrailers>() {
+                movieServiceInterface.getTrailerAndReviews(movieId, new Callback<ReviewsAndTrailers>() {
 
-                @Override
-                public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
-                    runtime.setText(String.valueOf(reviewsAndTrailers.getRuntime()) + "min.");
-                    Trailers trailers = reviewsAndTrailers.getTrailers();
-                    mYoutubeList = trailers.getYoutube();
-                    createlinearlayoutTrailers(mYoutubeList);
+                    @Override
+                    public void success(ReviewsAndTrailers reviewsAndTrailers, Response response) {
+                        runtime.setText(String.valueOf(reviewsAndTrailers.getRuntime()) + "min.");
+                        Trailers trailers = reviewsAndTrailers.getTrailers();
+                        mYoutubeList = trailers.getYoutube();
+                        createlinearlayoutTrailers(mYoutubeList);
 
-                    Reviews reviews = reviewsAndTrailers.getReviews();
-                    mResultList = reviews.getResults();
-                    createlinearlayoutReviews(mResultList);
+                        Reviews reviews = reviewsAndTrailers.getReviews();
+                        mResultList = reviews.getResults();
+                        createlinearlayoutReviews(mResultList);
+                    }
 
-                }
+                    @Override
+                    public void failure(RetrofitError error) {
 
-                @Override
-                public void failure(RetrofitError error) {
-
-                }
-            });
+                    }
+                });
         }
     }
 
@@ -174,12 +200,7 @@ public class DetailActivityFragment extends Fragment {
         }
     }
 
-    View.OnClickListener buttonClick = new View.OnClickListener() {
-        public void onClick(View v) {
-            TextView tvhidden = (TextView) v.findViewById(R.id.hidden_value);
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + tvhidden.getText())));
-        }
-    };
+
 
     public void createlinearlayoutReviews(List<Result> resultListm) {
         for (Result result : resultListm) {
@@ -196,7 +217,7 @@ public class DetailActivityFragment extends Fragment {
     public int saveMovieDB() {
         ContentResolver cr = getActivity().getContentResolver();
         ContentValues cv = new ContentValues();
-        cv.put(MovieContract.MovieEntry.COLUMN_ID_MOVIE, mMyObject.getId());
+        cv.put(MovieContract.MovieEntry.COLUMN_ID_MOVIE, movieId);
         cv.put(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE, mMyObject.getOriginalTitle());
         cv.put(MovieContract.MovieEntry.COLUMN_MOVIE_POSTER_IMAGE_THUMBNAIL, mMyObject.getMoviePosterImageThumbnail());
         cv.put(MovieContract.MovieEntry.COLUMN_USER_RATING, mMyObject.getUserRating());
@@ -205,8 +226,14 @@ public class DetailActivityFragment extends Fragment {
 
         Uri resultInsUri = cr.insert(MovieContract.MovieEntry.CONTENT_URI, cv);
         int resutInsId = Integer.parseInt(resultInsUri.getLastPathSegment());
-        Log.i(LOG_TAG, "se inserto " + resultInsUri.getLastPathSegment());
-        saveTrailersAndReviews(resutInsId);
+        movieIdDB = String.valueOf(resutInsId);
+        if(resutInsId != 1){
+            Log.i(LOG_TAG, "se inserto " + resultInsUri.getLastPathSegment());
+            mfavoriteMovie = true;
+            changeStateButtonFav();
+            saveTrailersAndReviews(resutInsId);
+        }
+
         return 0;
     }
 
@@ -251,4 +278,79 @@ public class DetailActivityFragment extends Fragment {
             Log.i(LOG_TAG, "El valor de bulk reviews " + bulk);
         }
     }
+
+    public void deleteMovieDB(){
+        mfavoriteMovie = false;
+        changeStateButtonFav();
+        ContentResolver cr = getActivity().getContentResolver();
+        int deleteTrailer = cr.delete(MovieContract.TrailerEntry.CONTENT_URI,
+                MovieProvider.selectionId,
+                new String[]{movieIdDB});
+
+        Cursor cursortrai = cr.query(
+                MovieContract.TrailerEntry.CONTENT_URI,
+                null,
+                MovieProvider.selectionId,
+                new String[]{movieIdDB},
+                null
+        );
+        if(cursortrai.getCount() == 0){
+            Log.i(LOG_TAG, "si borro "+String.valueOf(deleteTrailer));
+        }else{
+            Log.i(LOG_TAG," no borro nada");
+        }
+        int deleteReviews = cr.delete(MovieContract.ReviewsEntry.CONTENT_URI,
+                MovieProvider.selectionId,
+                new String[]{movieIdDB});
+
+        Cursor cursorRev = cr.query(
+                MovieContract.ReviewsEntry.CONTENT_URI,
+                null,
+                MovieProvider.selectionId,
+                new String[]{movieIdDB},
+                null
+        );
+        if(cursorRev.getCount() == 0){
+            Log.i(LOG_TAG, "si borro "+String.valueOf(deleteReviews));
+        }else{
+            Log.i(LOG_TAG," no borro nada");
+        }
+
+        int deleteMovie = cr.delete(
+                MovieContract.MovieEntry.CONTENT_URI,
+                MovieProvider.selectionId,
+                new String[]{String.valueOf(movieId)});
+
+        Cursor cursorMovie = cr.query(
+                MovieContract.MovieEntry.CONTENT_URI,
+                null,
+                MovieProvider.selectionId,
+                new String[]{String.valueOf(movieId)},
+                null
+        );
+        if(cursorMovie.getCount() == 0){
+            Log.i(LOG_TAG, "si borro "+String.valueOf(deleteMovie));
+        }else{
+            Log.i(LOG_TAG," no borro nada");
+        }
+
+
+
+    }
+    View.OnClickListener buttonClick = new View.OnClickListener() {
+        public void onClick(View v) {
+            TextView tvhidden = (TextView) v.findViewById(R.id.hidden_value);
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + tvhidden.getText())));
+        }
+    };
+    private void changeStateButtonFav(){
+        if(mfavoriteMovie){
+            fav_btn.setBackground(getResources().getDrawable(R.drawable.fav_select_btn));
+            fav_btn.setText(R.string.favorite_enable);
+        }else{
+            fav_btn.setBackground(getResources().getDrawable(R.drawable.fav_btn));
+            fav_btn.setText(R.string.favorite_disable);
+        }
+    }
 }
+

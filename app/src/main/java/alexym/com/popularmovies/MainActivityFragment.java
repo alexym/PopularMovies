@@ -22,8 +22,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import alexym.com.popularmovies.Utils.FetchMovieTask;
 import alexym.com.popularmovies.Rest.Movie;
+import alexym.com.popularmovies.Utils.FetchMovieTask;
 import alexym.com.popularmovies.Utils.OnTaskCompleted;
 import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
 
@@ -49,7 +49,6 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     @Override
     public void onStart(){
         super.onStart();
-        updateMovies();
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {

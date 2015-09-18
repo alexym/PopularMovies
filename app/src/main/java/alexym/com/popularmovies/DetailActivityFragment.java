@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -46,6 +47,10 @@ import retrofit.client.Response;
  */
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private final String YOUTUBE_LIST_KEY  = "youtubeList";
+    private final String REVIEWS_LIST_KEY  = "reviewsList";
+    /*private final String MOVIE_ID_DB_KEY  = "movieIdDB";
+    private final String MOVIE_ID_DB_KEY  = "movieIdDB";*/
     private Movie mMyObject;
     private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
     private List<Result> mResultList = new ArrayList<Result>();
@@ -62,6 +67,12 @@ public class DetailActivityFragment extends Fragment {
 
     public DetailActivityFragment() {
     }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(YOUTUBE_LIST_KEY, (ArrayList<? extends Parcelable>) mYoutubeList);
+        outState.putParcelableArrayList(YOUTUBE_LIST_KEY, (ArrayList<? extends Parcelable>) mResultList);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,7 +85,13 @@ public class DetailActivityFragment extends Fragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        updateInfoMovie();
+        if(savedInstanceState !=null){
+            mYoutubeList = savedInstanceState.getParcelableArrayList(YOUTUBE_LIST_KEY);
+            mResultList = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
+        }else{
+            updateInfoMovie();
+        }
+
         return V;
     }
 

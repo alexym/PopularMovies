@@ -57,15 +57,15 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         outState.putString(SORT_KEY, sortOrderGeneral);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
-            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
-            refreshDataScreen(items);
-        }
-    }
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        if (savedInstanceState != null) {
+//            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
+//            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
+//            refreshDataScreen(items);
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -108,7 +108,13 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
                 // ...
             }
         }));
-
+        if(savedInstanceState !=null){
+            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
+            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
+            refreshDataScreen(items);
+        }else{
+            updateMovies();
+        }
         return rootView;
     }
 

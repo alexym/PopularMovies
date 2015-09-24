@@ -1,6 +1,7 @@
 package alexym.com.popularmovies;
 
 import android.app.ActivityOptions;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,6 +15,9 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -46,6 +50,34 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
     public MainActivityFragment() {
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Add this line in order for this fragment to handle menu events.
+        setHasOptionsMenu(true);
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_main_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.sortOrder) {
+            sortOrderDiag();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     public void onStart(){
         super.onStart();
@@ -119,6 +151,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     }
 
     public void updateMovies(){
+        //Obtiene el tipo de orden que esta en el Shared preferences y evalua si ha cambiado,
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         if(!sortOrderGeneral.equals(sortOrder)) {
@@ -131,7 +164,6 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
             }
         }
     }
-
     @Override
     public void updateView(List result) {
         if(result !=null) {
@@ -157,4 +189,9 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         }
         return false;
     }
+    private void sortOrderDiag(){
+        DialogFragment newFragment = new SortOrderDialog();
+        newFragment.show(getActivity().getFragmentManager(),"sortOrderDialog");
+    }
+
 }

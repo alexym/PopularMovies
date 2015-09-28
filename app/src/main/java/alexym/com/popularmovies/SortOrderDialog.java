@@ -8,7 +8,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * Created by Cloudco on 23/09/15.
@@ -36,7 +35,6 @@ public class SortOrderDialog extends DialogFragment {
         sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         arrayString = getResources().getStringArray(R.array.pre_sort_order_values);
         for(int i = 0 ; i< arrayString.length;i++){
-            Log.i("sortOrder","es "+arrayString[i]);
             if(arrayString[i].equals(sortOrder)){
                 actualSortOrderIndex = i;
             }
@@ -68,8 +66,6 @@ public class SortOrderDialog extends DialogFragment {
                         mListener.onDialogSelectItemClick(arrayString[which]);
                     }
                 });
-
-
         return builder.create();
     }
 }

@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,19 +34,29 @@ import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
  */
 public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
+    public static final String TAG = "MainActivityFragment";
+
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     private final String MOVIE_LIST_KEY = "movielist";
     private final String SORT_KEY = "stringsort";
-    String sortOrderGeneral="hola";
-
-    List items = new ArrayList<Movie>();
-
+    private String sortOrderGeneral="hola";
+    private List items = new ArrayList<Movie>();
     private RecyclerView recycler;
     private ProgressBar progressBar;
-    MovieAdapter adapter;
+    private MovieAdapter adapter;
 
-    public MainActivityFragment() {
+
+
+    public static MainActivityFragment newInstance(Bundle arguments){
+        MainActivityFragment f = new MainActivityFragment();
+        if(arguments != null){
+            f.setArguments(arguments);
+        }
+        return f;
     }
+
+
+    public MainActivityFragment(){}
 
     @Override
     public void onStart(){
@@ -71,6 +82,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.i(LOG_TAG,"estamos en el onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         recycler = (RecyclerView) rootView.findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
@@ -158,6 +170,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         }
         return false;
     }
+
 
 
 }

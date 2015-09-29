@@ -36,7 +36,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
     public static final String TAG = "MainActivityFragment";
 
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private final String MOVIE_LIST_KEY = "movielist";
     private final String SORT_KEY = "stringsort";
     private String sortOrderGeneral="hola";
@@ -60,6 +60,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
     @Override
     public void onStart(){
+        Log.i(LOG_TAG,"onStart");
         super.onStart();
     }
     @Override
@@ -126,24 +127,29 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
             sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
             refreshDataScreen(items);
         }else{
-            updateMovies();
+            orderSortEvaluate();
         }
         return rootView;
     }
 
-    public void updateMovies(){
+    private void orderSortEvaluate(){
         //Obtiene el tipo de orden que esta en el Shared preferences y evalua si ha cambiado,
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         if(!sortOrderGeneral.equals(sortOrder)) {
+            sortOrderGeneral = sortOrder;
+            updateMovies();
+        }
+    }
+
+    public void updateMovies(){
             if(isNetworkAvailable()) {
-                new FetchMovieTask(this).execute(sortOrder);
-                sortOrderGeneral = sortOrder;
+                new FetchMovieTask(this).execute(sortOrderGeneral);
             }
             else{
                 Toast.makeText(getActivity(),"Es necesario conectarse a internet",Toast.LENGTH_SHORT).show();
             }
-        }
+
     }
     @Override
     public void updateView(List result) {
@@ -170,7 +176,4 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         }
         return false;
     }
-
-
-
 }

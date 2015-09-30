@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -49,7 +50,8 @@ public class DetailActivityFragment extends Fragment {
     private Movie mMyObject;
     private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
     private List<Result> mResultList = new ArrayList<Result>();
-
+    private final String TRAILERS_LIST_KEY = "trailerList";
+    private final String REVIEWS_LIST_KEY = "reviewsList";
     //id db
     private String movieIdDB;
     //id movie
@@ -74,8 +76,21 @@ public class DetailActivityFragment extends Fragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        updateInfoMovie();
+        if(savedInstanceState != null){
+            mYoutubeList = savedInstanceState.getParcelableArrayList(TRAILERS_LIST_KEY);
+            createlinearlayoutTrailers(mYoutubeList);
+            mResultList = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
+            createlinearlayoutReviews(mResultList);
+        }else {
+            updateInfoMovie();
+        }
         return V;
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(TRAILERS_LIST_KEY, (ArrayList<? extends Parcelable>) mYoutubeList);
+        outState.putParcelableArrayList(REVIEWS_LIST_KEY, (ArrayList<? extends Parcelable>) mResultList);
     }
 
     public void initUI(View v, Movie obj) throws ParseException {
@@ -164,6 +179,7 @@ public class DetailActivityFragment extends Fragment {
             createlinearlayoutReviews(mResultList);
 
         } else {
+            Log.i(LOG_TAG,"carga el servicio");
             MovieService movieService = new MovieService();
             MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
                 movieServiceInterface.getTrailerAndReviews(movieId, new Callback<ReviewsAndTrailers>() {

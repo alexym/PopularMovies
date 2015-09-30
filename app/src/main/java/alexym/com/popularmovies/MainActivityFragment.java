@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +23,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import alexym.com.popularmovies.Utils.FetchMovieTask;
 import alexym.com.popularmovies.Rest.Movie;
+import alexym.com.popularmovies.Utils.FetchMovieTask;
 import alexym.com.popularmovies.Utils.OnTaskCompleted;
 import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
 
@@ -33,23 +34,34 @@ import alexym.com.popularmovies.Utils.RecyclerItemClickListener;
  */
 public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    public static final String TAG = "MainActivityFragment";
+
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private final String MOVIE_LIST_KEY = "movielist";
     private final String SORT_KEY = "stringsort";
-    String sortOrderGeneral="hola";
-
-    List items = new ArrayList<Movie>();
-
+    private String sortOrderGeneral="hola";
+    private List items = new ArrayList<Movie>();
     private RecyclerView recycler;
     private ProgressBar progressBar;
-    MovieAdapter adapter;
+    private MovieAdapter adapter;
 
-    public MainActivityFragment() {
+
+
+    public static MainActivityFragment newInstance(Bundle arguments){
+        MainActivityFragment f = new MainActivityFragment();
+        if(arguments != null){
+            f.setArguments(arguments);
+        }
+        return f;
     }
+
+
+    public MainActivityFragment(){}
+
     @Override
     public void onStart(){
+        Log.i(LOG_TAG,"onStart");
         super.onStart();
-        updateMovies();
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -58,19 +70,20 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         outState.putString(SORT_KEY, sortOrderGeneral);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
-            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
-            refreshDataScreen(items);
-        }
-    }
+//    @Override
+//    public void onActivityCreated(Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        if (savedInstanceState != null) {
+//            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
+//            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
+//            refreshDataScreen(items);
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.i(LOG_TAG,"estamos en el onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         recycler = (RecyclerView) rootView.findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
@@ -109,24 +122,35 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
                 // ...
             }
         }));
-
+        if(savedInstanceState !=null){
+            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
+            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
+            refreshDataScreen(items);
+        }else{
+            orderSortEvaluate();
+        }
         return rootView;
     }
 
-    public void updateMovies(){
+    private void orderSortEvaluate(){
+        //Obtiene el tipo de orden que esta en el Shared preferences y evalua si ha cambiado,
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         if(!sortOrderGeneral.equals(sortOrder)) {
+            sortOrderGeneral = sortOrder;
+            updateMovies();
+        }
+    }
+
+    public void updateMovies(){
             if(isNetworkAvailable()) {
-                new FetchMovieTask(this).execute(sortOrder);
-                sortOrderGeneral = sortOrder;
+                new FetchMovieTask(this).execute(sortOrderGeneral);
             }
             else{
                 Toast.makeText(getActivity(),"Es necesario conectarse a internet",Toast.LENGTH_SHORT).show();
             }
-        }
-    }
 
+    }
     @Override
     public void updateView(List result) {
         if(result !=null) {

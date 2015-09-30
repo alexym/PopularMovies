@@ -47,11 +47,14 @@ import retrofit.client.Response;
  */
 public class DetailActivityFragment extends Fragment {
     private final String LOG_TAG = DetailActivityFragment.class.getSimpleName();
+    private final String YOUTUBE_LIST_KEY  = "youtubeList";
+    private final String REVIEWS_LIST_KEY  = "reviewsList";
+    /*private final String MOVIE_ID_DB_KEY  = "movieIdDB";
+    private final String MOVIE_ID_DB_KEY  = "movieIdDB";*/
     private Movie mMyObject;
     private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
     private List<Result> mResultList = new ArrayList<Result>();
-    private final String TRAILERS_LIST_KEY = "trailerList";
-    private final String REVIEWS_LIST_KEY = "reviewsList";
+
     //id db
     private String movieIdDB;
     //id movie
@@ -63,6 +66,12 @@ public class DetailActivityFragment extends Fragment {
     Button fav_btn;
 
     public DetailActivityFragment() {
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(YOUTUBE_LIST_KEY, (ArrayList<? extends Parcelable>) mYoutubeList);
+        outState.putParcelableArrayList(YOUTUBE_LIST_KEY, (ArrayList<? extends Parcelable>) mResultList);
     }
 
     @Override
@@ -76,21 +85,14 @@ public class DetailActivityFragment extends Fragment {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        if(savedInstanceState != null){
-            mYoutubeList = savedInstanceState.getParcelableArrayList(TRAILERS_LIST_KEY);
-            createlinearlayoutTrailers(mYoutubeList);
+        if(savedInstanceState !=null){
+            mYoutubeList = savedInstanceState.getParcelableArrayList(YOUTUBE_LIST_KEY);
             mResultList = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
-            createlinearlayoutReviews(mResultList);
-        }else {
+        }else{
             updateInfoMovie();
         }
+
         return V;
-    }
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TRAILERS_LIST_KEY, (ArrayList<? extends Parcelable>) mYoutubeList);
-        outState.putParcelableArrayList(REVIEWS_LIST_KEY, (ArrayList<? extends Parcelable>) mResultList);
     }
 
     public void initUI(View v, Movie obj) throws ParseException {
@@ -179,7 +181,6 @@ public class DetailActivityFragment extends Fragment {
             createlinearlayoutReviews(mResultList);
 
         } else {
-            Log.i(LOG_TAG,"carga el servicio");
             MovieService movieService = new MovieService();
             MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
                 movieServiceInterface.getTrailerAndReviews(movieId, new Callback<ReviewsAndTrailers>() {

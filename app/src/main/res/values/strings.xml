@@ -10,17 +10,27 @@
     <string name="pref_sort_order_key">sortOrder</string>
     <string name="pref_sort_order_most_popular">popularity.desc</string>
     <string name="pref_sort_order_highest_rated">vote_average.desc</string>
+
+    <string name="pref_sort_order_favorite">favorite</string>
+
     <string-array name="pre_sort_order_values">
         <item>popularity.desc</item>
         <item>vote_average.desc</item>
+        <item>favorite</item>
     </string-array>
     <string-array name="pre_sort_order_options">
         <item>Most Popular</item>
         <item>Highest Rated</item>
+        <item>Favorite Movies</item>
     </string-array>
     <string name="title_trailers">Trailers</string>
     <string name="title_reviews">Reviews</string>
     <string name="favorite_enable">FAVORITE</string>
     <string name="favorite_disable">MARK AS FAVORITE</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+
 
 </resources>

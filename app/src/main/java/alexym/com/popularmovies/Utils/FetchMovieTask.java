@@ -33,6 +33,7 @@ public class FetchMovieTask extends AsyncTask<String, String, List<Movie> > {
     protected List<Movie> doInBackground(String... params) {
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
+        Log.i(LOG_TAG_FETCH,"si se contecta");
         List items = new ArrayList<Movie>();
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;

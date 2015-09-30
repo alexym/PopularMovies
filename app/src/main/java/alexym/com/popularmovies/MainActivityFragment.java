@@ -61,6 +61,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     @Override
     public void onStart(){
         Log.i(LOG_TAG,"onStart");
+        orderSortEvaluate();
         super.onStart();
     }
     @Override
@@ -70,15 +71,6 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         outState.putString(SORT_KEY, sortOrderGeneral);
     }
 
-//    @Override
-//    public void onActivityCreated(Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        if (savedInstanceState != null) {
-//            items = savedInstanceState.getParcelableArrayList(MOVIE_LIST_KEY);
-//            sortOrderGeneral = savedInstanceState.getString(SORT_KEY);
-//            refreshDataScreen(items);
-//        }
-//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

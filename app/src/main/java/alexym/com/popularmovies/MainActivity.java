@@ -3,6 +3,7 @@ package alexym.com.popularmovies;
 import android.app.DialogFragment;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -63,6 +64,10 @@ public class MainActivity extends ActionBarActivity implements SortOrderDialog.N
     @Override
     public void onDialogSelectItemClick(String sortOrderValue) {
         Log.i("hola","si llega "+sortOrderValue);
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_sort_order_key), sortOrderValue).commit();
+        //String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
+        //Se recarga el fragment
         newFragment.dismiss();
     }
     private void sortOrderDiag(){

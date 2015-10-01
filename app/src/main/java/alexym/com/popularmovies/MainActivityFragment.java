@@ -158,26 +158,21 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     public void updateMoviesDB(){
         ContentResolver cr = getActivity().getContentResolver();
         Cursor cursor = cr.query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
-//        while (cursor.moveToNext()) {
-//
-//            List items = new ArrayList<Movie>();
-//            add(new Movie(movieJson.getString(OWM_TITLE)
-//                    , URL_IMAGE_BASE + SIZE_IMAGE + movieJson.getString(OWM_POSTER)
-//                    , movieJson.getString(OWM_OVERVIEW)
-//                    , movieJson.getString(OWN_VOTE_AVARAGE)
-//                    , movieJson.getString(OWM_DATE)
-//                    , movieJson.getInt(OWM_ID)));
-//
-//            String name_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_NAME));
-//            String source_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_SOURCE));
-//            Log.i(LOG_TAG,"cargando..."+name_trailer);
-//            Youtube youtubeObj = new Youtube(name_trailer,source_trailer);
-//            mYoutubeList.add(youtubeObj);
-//        }
-//
-//        items.clear();
-//        items.addAll(result);
-//        refreshDataScreen(result);
+        List result = new ArrayList<Movie>();
+        while (cursor.moveToNext()) {
+
+
+            result.add(new Movie(cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ORIGINAL_TITLE))
+                    , cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_MOVIE_POSTER_IMAGE_THUMBNAIL))
+                    , cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_OVERVIEW))
+                    , cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_USER_RATING))
+                    , cursor.getString(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_RELEASE_DATE))
+                    , cursor.getInt(cursor.getColumnIndex(MovieContract.MovieEntry.COLUMN_ID_MOVIE))));
+
+        }
+        items.clear();
+        items.addAll(result);
+        refreshDataScreen(result);
     }
     @Override
     public void updateView(List result) {

@@ -1,9 +1,11 @@
 package alexym.com.popularmovies;
 
 import android.app.ActivityOptions;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -23,6 +25,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import alexym.com.popularmovies.Data.MovieContract;
 import alexym.com.popularmovies.Rest.Movie;
 import alexym.com.popularmovies.Utils.FetchMovieTask;
 import alexym.com.popularmovies.Utils.OnTaskCompleted;
@@ -60,7 +63,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
 
     @Override
     public void onStart(){
-        Log.i(LOG_TAG,"onStart");
+        Log.i(LOG_TAG, "onStart");
         orderSortEvaluate();
         super.onStart();
     }
@@ -75,7 +78,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.i(LOG_TAG,"estamos en el onCreateView");
+        Log.i(LOG_TAG, "estamos en el onCreateView");
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         recycler = (RecyclerView) rootView.findViewById(R.id.reciclador);
         recycler.setHasFixedSize(true);
@@ -130,7 +133,12 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         if(!sortOrderGeneral.equals(sortOrder)) {
             sortOrderGeneral = sortOrder;
-            updateMovies();
+            if(sortOrderGeneral.equals(getString(R.string.pref_sort_order_favorite))){
+                updateMoviesDB();
+            }else{
+                updateMovies();
+            }
+
         }
     }
 
@@ -143,6 +151,34 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
             }
 
     }
+    public void refreshDataScreen(List items){
+        adapter.updateList(items);
+        progressBar.setVisibility(View.GONE);
+    }
+    public void updateMoviesDB(){
+        ContentResolver cr = getActivity().getContentResolver();
+        Cursor cursor = cr.query(MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+//        while (cursor.moveToNext()) {
+//
+//            List items = new ArrayList<Movie>();
+//            add(new Movie(movieJson.getString(OWM_TITLE)
+//                    , URL_IMAGE_BASE + SIZE_IMAGE + movieJson.getString(OWM_POSTER)
+//                    , movieJson.getString(OWM_OVERVIEW)
+//                    , movieJson.getString(OWN_VOTE_AVARAGE)
+//                    , movieJson.getString(OWM_DATE)
+//                    , movieJson.getInt(OWM_ID)));
+//
+//            String name_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_NAME));
+//            String source_trailer = cursorTraielers.getString(cursorTraielers.getColumnIndex(MovieContract.TrailerEntry.COLUMN_SOURCE));
+//            Log.i(LOG_TAG,"cargando..."+name_trailer);
+//            Youtube youtubeObj = new Youtube(name_trailer,source_trailer);
+//            mYoutubeList.add(youtubeObj);
+//        }
+//
+//        items.clear();
+//        items.addAll(result);
+//        refreshDataScreen(result);
+    }
     @Override
     public void updateView(List result) {
         if(result !=null) {
@@ -152,11 +188,7 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         }
 
     }
-    public void refreshDataScreen(List items){
-        adapter.updateList(items);
-        progressBar.setVisibility(View.GONE);
 
-    }
     public boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager)
                 getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,7 +23,7 @@ public class MainActivity extends ActionBarActivity implements SortOrderDialog.N
 //                    .add(R.id.containerMain, new MainActivityFragment())
 //                    .commit();
             Bundle arguments = new Bundle();
-            arguments.putString("id", "id");
+            //arguments.putString("id", "id");
             MainActivityFragment fragment = MainActivityFragment.newInstance(arguments);
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.containerMain,fragment, MainActivityFragment.TAG);
@@ -63,12 +62,16 @@ public class MainActivity extends ActionBarActivity implements SortOrderDialog.N
 
     @Override
     public void onDialogSelectItemClick(String sortOrderValue) {
-        Log.i("hola","si llega "+sortOrderValue);
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         PreferenceManager.getDefaultSharedPreferences(this).edit().putString(getString(R.string.pref_sort_order_key), sortOrderValue).commit();
         //String sortOrder = prefs.getString(getString(R.string.pref_sort_order_key), getString((R.string.pref_sort_order_most_popular)));
         //Se recarga el fragment
         newFragment.dismiss();
+        Bundle arguments = new Bundle();
+        MainActivityFragment fragment = MainActivityFragment.newInstance(arguments);
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.containerMain,fragment, MainActivityFragment.TAG);
+        ft.commit();
     }
     private void sortOrderDiag(){
         newFragment = new SortOrderDialog();

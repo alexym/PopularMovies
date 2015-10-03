@@ -12,23 +12,33 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity implements SortOrderDialog.NoticeDialogListener {
     DialogFragment newFragment;
+    private boolean mTwoPane;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-//            getSupportFragmentManager().beginTransaction()
-//                    .add(R.id.containerMain, new MainActivityFragment())
-//                    .commit();
-            Bundle arguments = new Bundle();
-            //arguments.putString("id", "id");
-            MainActivityFragment fragment = MainActivityFragment.newInstance(arguments);
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.containerMain,fragment, MainActivityFragment.TAG);
-            ft.commit();
+        if (findViewById(R.id.container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new DetailActivityFragment(), DetailActivityFragment.TAG)
+                        .commit();
+
+            }
+
+        }else{
+            mTwoPane = false;
+            if (savedInstanceState == null) {
+                Bundle arguments = new Bundle();
+                MainActivityFragment fragment = MainActivityFragment.newInstance(arguments);
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.containerMain,fragment, MainActivityFragment.TAG);
+                ft.commit();
+            }
         }
+
     }
 
     @Override

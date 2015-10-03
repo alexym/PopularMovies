@@ -55,6 +55,8 @@ public class DetailActivityFragment extends Fragment {
     private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
     private List<Result> mResultList = new ArrayList<Result>();
 
+    public static final String TAG = "DetailActivityFragment";
+
     //id db
     private String movieIdDB;
     //id movie
@@ -78,19 +80,23 @@ public class DetailActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View V = inflater.inflate(R.layout.fragment_detail, container, false);
-        mMyObject = (Movie) this.getArguments().getParcelable("my object");
-        movieId = mMyObject.getId();
-        try {
-            initUI(V, mMyObject);
-        } catch (ParseException e) {
-            e.printStackTrace();
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            mMyObject = (Movie) arguments.getParcelable("my object");
+            movieId = mMyObject.getId();
+            try {
+                initUI(V, mMyObject);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if(savedInstanceState !=null){
+                mYoutubeList = savedInstanceState.getParcelableArrayList(YOUTUBE_LIST_KEY);
+                mResultList = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
+            }else{
+                updateInfoMovie();
+            }
         }
-        if(savedInstanceState !=null){
-            mYoutubeList = savedInstanceState.getParcelableArrayList(YOUTUBE_LIST_KEY);
-            mResultList = savedInstanceState.getParcelableArrayList(REVIEWS_LIST_KEY);
-        }else{
-            updateInfoMovie();
-        }
+
 
         return V;
     }

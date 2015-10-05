@@ -8,8 +8,8 @@
     android:orientation="horizontal"
     tools:context="alexym.com.popularmovies.MainActivity">
 
-    <fragment
-        android:id="@+id/fragment_forecast"
+    <FrameLayout
+        android:id="@+id/containerMain"
         android:name="alexym.com.popularmovies.MainActivityFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

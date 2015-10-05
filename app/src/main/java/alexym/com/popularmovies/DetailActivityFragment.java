@@ -9,8 +9,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -55,6 +60,8 @@ public class DetailActivityFragment extends Fragment {
     private List<Youtube> mYoutubeList = new ArrayList<Youtube>();
     private List<Result> mResultList = new ArrayList<Result>();
 
+    private String firstTrailer;
+
     public static final String TAG = "DetailActivityFragment";
 
     //id db
@@ -63,11 +70,26 @@ public class DetailActivityFragment extends Fragment {
     private int movieId;
     private boolean mfavoriteMovie = false;
 
+    private ShareActionProvider mShareActionProvider;
+
     LinearLayout linearLayoutTrailers, linearLayoutReviews;
     TextView runtime;
     Button fav_btn;
 
     public DetailActivityFragment() {
+        setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_detail_fragment, menu);
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+        if (firstTrailer != null) {
+            mShareActionProvider.setShareIntent(createShareMovieIntent());
+        }else{
+            Log.i(TAG,"Shared actionprovier is null");
+        }
     }
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -185,7 +207,7 @@ public class DetailActivityFragment extends Fragment {
                 mResultList.add(resultObj);
             }
             createlinearlayoutReviews(mResultList);
-
+            firstTrailer = mYoutubeList.get(0).getSource();
         } else {
             MovieService movieService = new MovieService();
             MovieService.MovieServiceInterface movieServiceInterface = movieService.getmMovieServiceInterface();
@@ -197,7 +219,8 @@ public class DetailActivityFragment extends Fragment {
                         Trailers trailers = reviewsAndTrailers.getTrailers();
                         mYoutubeList = trailers.getYoutube();
                         createlinearlayoutTrailers(mYoutubeList);
-
+                        //se obtiene el primer valor de la lista de los trailers
+                        firstTrailer = mYoutubeList.get(0).getSource();
                         Reviews reviews = reviewsAndTrailers.getReviews();
                         mResultList = reviews.getResults();
                         createlinearlayoutReviews(mResultList);
@@ -374,6 +397,13 @@ public class DetailActivityFragment extends Fragment {
             fav_btn.setBackground(getResources().getDrawable(R.drawable.fav_btn));
             fav_btn.setText(R.string.favorite_disable);
         }
+    }
+    private Intent createShareMovieIntent(){
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "http://www.youtube.com/watch?v="+firstTrailer);
+        return shareIntent;
     }
 }
 

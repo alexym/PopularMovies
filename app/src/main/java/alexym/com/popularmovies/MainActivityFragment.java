@@ -1,14 +1,11 @@
 package alexym.com.popularmovies;
 
-import android.app.ActivityOptions;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
@@ -47,6 +44,13 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
     private RecyclerView recycler;
     private ProgressBar progressBar;
     private MovieAdapter adapter;
+
+    public interface RowSelectedInterface {
+        public void onRowSelectItemClick(Movie movie,View image);
+    }
+
+    // Use this instance of the interface to deliver action events
+    RowSelectedInterface mListener;
 
 
 
@@ -93,23 +97,9 @@ public class MainActivityFragment extends Fragment implements OnTaskCompleted{
         recycler.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), recycler, new RecyclerItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Intent i = new Intent(getActivity(), DetailActivity.class);
                 Movie movieObj = (Movie) items.get(position);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("my object", movieObj);
-
-                i.putExtras(bundle);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    View sharedView = view.findViewById(R.id.imagen_view_card);
-                    String transitionName = getString(R.string.image_card_animation);
-                    ActivityOptions transitionActivityOptions;
-                    transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), sharedView, transitionName);
-                    getActivity().startActivity(i, transitionActivityOptions.toBundle());
-                } else {
-                    startActivity(i);
-                }
-
-
+                View sharedView = view.findViewById(R.id.imagen_view_card);
+                ((RowSelectedInterface) getActivity()).onRowSelectItemClick(movieObj,sharedView);
             }
 
             @Override
